@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Delete, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { ICard } from 'src/interfaces/card.interface';
 
@@ -8,23 +8,28 @@ export class CardsController {
 
   @Get()
   async getAllCards(): Promise<ICard[]> {
-    const cardData = await this.cardsService.getAllCards();
-    const result = cardData.map(card => {
-        return {
-            value: Number(card.value)
-        }
-    })
-    return result;
+    try {
+      return this.cardsService.getAllCards();
+    } catch (error) {
+      throw new HttpException('Failed to get cards', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Post()
-  async createCard(@Body() card: ICard): Promise<boolean> {
-    await this.cardsService.createCard(card)
-    return true;
+  async createCard(@Body() card: ICard): Promise<ICard> {
+    try {
+      return this.cardsService.createCard(card);
+    } catch (error) {
+      throw new HttpException('Failed to create card', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Delete(':id')
   async deleteCard(@Param('id') id: number): Promise<void> {
-    return this.cardsService.deleteCard(id);
+    try {
+      return this.cardsService.deleteCard(id);
+    } catch (error) {
+      throw new HttpException('Failed to delete card', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

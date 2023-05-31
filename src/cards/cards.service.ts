@@ -11,17 +11,33 @@ export class CardsService {
     private cardRepository: Repository<Card>,
   ) {}
 
-  async getAllCards(): Promise<Card[]> {
-    return this.cardRepository.find();
+  async getAllCards(): Promise<ICard[]> {
+    try {
+      const cardData = await this.cardRepository.find();
+      const result = cardData.map((card) => ({
+        id: card.id,
+        value: Number(card.value),
+      }));
+      return result;
+    } catch (error) {
+      throw new Error('Failed to get cards');
+    }
   }
 
-  async createCard(cardData: ICard): Promise<boolean> {
-    const card = this.cardRepository.create(cardData);
-    await this.cardRepository.save(card);
-    return true;
+  async createCard(cardData: ICard): Promise<Card> {
+    try {
+      const card = this.cardRepository.create(cardData);
+      return this.cardRepository.save(card);
+    } catch (error) {
+      throw new Error('Failed to create card');
+    }
   }
 
   async deleteCard(id: number): Promise<void> {
-    await this.cardRepository.delete(id);
+    try {
+      await this.cardRepository.delete(id);
+    } catch (error) {
+      throw new Error('Failed to delete card');
+    }
   }
 }
