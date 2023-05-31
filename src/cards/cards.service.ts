@@ -13,12 +13,8 @@ export class CardsService {
 
   async getAllCards(): Promise<ICard[]> {
     try {
-      const cardData = await this.cardRepository.find();
-      const result = cardData.map((card) => ({
-        id: card.id,
-        value: Number(card.value),
-      }));
-      return result;
+      const cardData = await this.cardRepository.find({select: ['id', 'value']});
+      return cardData;
     } catch (error) {
       throw new Error('Failed to get cards');
     }
